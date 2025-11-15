@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card';
 import LeadCard from '@/components/leads/LeadCard';
 import LeadFilters from '@/components/leads/LeadFilters';
 import LeadHeatmap from '@/components/leads/LeadHeatmap';
+import LeadDetailView from '@/components/leads/LeadDetailView';
 import SendMessageModal from '@/components/communications/SendMessageModal';
 import { Lead } from '@/types';
 import { TrendingUp, AlertCircle } from 'lucide-react';
@@ -114,9 +115,24 @@ const mockLeads: ExtendedLead[] = [
 
 export default function LeadsPage() {
   const [viewMode, setViewMode] = useState<'list' | 'heatmap'>('list');
-  const [sortedLeads, setSortedLeads] = useState(mockLeads);
+  const [sortedLeads] = useState(mockLeads);
   const [selectedLead, setSelectedLead] = useState<ExtendedLead | null>(null);
   const [showMessageModal, setShowMessageModal] = useState(false);
+  const [detailViewLead, setDetailViewLead] = useState<ExtendedLead | null>(null);
+
+  // If viewing lead details, show detail view
+  if (detailViewLead) {
+    return (
+      <LeadDetailView
+        lead={detailViewLead}
+        onBack={() => setDetailViewLead(null)}
+        onSendMessage={() => {
+          setSelectedLead(detailViewLead);
+          setShowMessageModal(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -193,6 +209,7 @@ export default function LeadsPage() {
                 setSelectedLead(lead);
                 setShowMessageModal(true);
               }}
+              onViewDetails={() => setDetailViewLead(lead)}
             />
           ))}
         </div>

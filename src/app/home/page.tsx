@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Paperclip, Sparkles, TrendingUp, Users, Bell } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
+import VoiceInputModal from '@/components/voice/VoiceInputModal';
 import { Message } from '@/types';
 
 export default function HomePage() {
@@ -25,6 +25,7 @@ What would you like to focus on first?`,
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const quickActions = [
@@ -137,9 +138,9 @@ What would you like to do?`;
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
+      <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
@@ -155,7 +156,7 @@ What would you like to do?`;
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-3 md:p-6 pb-24 md:pb-6">
+      <div className="flex-1 overflow-y-auto p-3 md:p-6 pb-32 md:pb-6">
         <div className="max-w-4xl mx-auto space-y-3 md:space-y-4">
           {messages.map((message) => (
             <div
@@ -208,7 +209,7 @@ What would you like to do?`;
 
       {/* Quick Actions */}
       {messages.length <= 2 && (
-        <div className="px-3 md:px-6 pb-4">
+        <div className="flex-shrink-0 px-3 md:px-6 pb-4">
           <div className="max-w-4xl mx-auto">
             <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">Quick actions:</p>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-3">
@@ -230,7 +231,7 @@ What would you like to do?`;
       )}
 
       {/* Input Area */}
-      <div className="bg-white border-t border-gray-200 px-3 md:px-6 py-3 md:py-4 pb-safe">
+      <div className="flex-shrink-0 bg-white border-t border-gray-200 px-3 md:px-6 py-3 md:py-4 pb-20 md:pb-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-end gap-2 md:gap-3">
             <button className="p-2 md:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors active:scale-95 min-h-[44px] min-w-[44px] flex items-center justify-center">
@@ -240,7 +241,7 @@ What would you like to do?`;
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSend();
@@ -250,7 +251,10 @@ What would you like to do?`;
                 className="w-full px-3 md:px-4 py-2 md:py-3 pr-10 md:pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm md:text-base"
                 rows={1}
               />
-              <button className="absolute right-2 md:right-3 bottom-2 md:bottom-3 p-1 text-gray-400 hover:text-gray-600 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center">
+              <button
+                onClick={() => setShowVoiceModal(true)}
+                className="absolute right-2 md:right-3 bottom-2 md:bottom-3 p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center active:scale-95"
+              >
                 <Mic size={16} />
               </button>
             </div>
@@ -267,6 +271,16 @@ What would you like to do?`;
           </p>
         </div>
       </div>
+
+      {/* Voice Input Modal */}
+      <VoiceInputModal
+        isOpen={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+        onTranscript={(text) => {
+          setInput(text);
+          handleSend(text);
+        }}
+      />
     </div>
   );
 }

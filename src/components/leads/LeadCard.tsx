@@ -1,4 +1,4 @@
-import { Mail, Phone, Calendar, FileText, MapPin, DollarSign, Lightbulb, Clock } from 'lucide-react';
+import { Mail, Phone, Calendar, FileText, MapPin, IndianRupee, Lightbulb, Clock } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -19,9 +19,10 @@ interface ExtendedLead extends Lead {
 interface LeadCardProps {
   lead: ExtendedLead;
   onSendMessage?: () => void;
+  onViewDetails?: () => void;
 }
 
-export default function LeadCard({ lead, onSendMessage }: LeadCardProps) {
+export default function LeadCard({ lead, onSendMessage, onViewDetails }: LeadCardProps) {
   const statusVariant = {
     hot: 'danger' as const,
     warm: 'warning' as const,
@@ -65,7 +66,7 @@ export default function LeadCard({ lead, onSendMessage }: LeadCardProps) {
         )}
         {lead.income && (
           <div className="flex items-center gap-2 text-gray-600">
-            <DollarSign size={14} />
+            <IndianRupee size={14} />
             <span>{formatCurrency(lead.income)}/year</span>
           </div>
         )}
@@ -118,7 +119,12 @@ export default function LeadCard({ lead, onSendMessage }: LeadCardProps) {
         >
           Send Message
         </Button>
-        <Button size="sm" variant="outline" className="flex-1 min-h-[44px] text-xs md:text-sm">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 min-h-[44px] text-xs md:text-sm"
+          onClick={onViewDetails}
+        >
           View Details
         </Button>
       </div>

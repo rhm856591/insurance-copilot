@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Insurance AI Copilot
+
+Communication AI Copilot for Life Insurance Agents - A comprehensive Next.js application that assists agents with client interactions, policy explanations, lead nurturing, and compliance monitoring.
+
+## Features
+
+### 🏠 Agentic Home Interface
+- Conversational command center powered by AI
+- Voice and text input support
+- Dynamic insights and daily summaries
+- Quick action cards for common tasks
+- Context-aware AI responses
+
+### 🔐 Secure Authentication
+- Email & Password authentication
+- SSO integration (Azure AD, Okta)
+- Multi-Factor Authentication support
+- Smart session management
+
+### 🤖 AI Chat Assistant
+- Real-time suggestions for client queries
+- Auto-generation of personalized messages and emails
+- Policy explanations in simple language (Term Life, ULIP, Endowment, etc.)
+- Context-aware response generation
+- Multi-modal interface support
+
+### 👥 Lead Management
+- AI-driven prioritization with explainability
+- Sentiment analysis to prioritize hot leads
+- Lead status tracking (Hot, Warm, Cold) with reasoning
+- Conversion probability scoring
+- AI heatmap visualization
+- Best contact time recommendations
+- Enriched lead profiles (age, income, location, source)
+- Smart search and filtering
+
+### 👤 Customer Management
+- Comprehensive customer search (name, policy, phone, email, PAN)
+- Customer detail view with full interaction history
+- Policy portfolio overview
+- AI-powered next best action recommendations
+- Renewal tracking with visual indicators
+- Communication timeline with sentiment markers
+- Scheduled follow-ups management
+
+### ✅ Compliance & Governance
+- Real-time compliance checking
+- Flagging of prohibited terms (guaranteed returns, risk-free, etc.)
+- IRDAI guideline adherence
+- Tone and sentiment analysis
+- Audit trail of communications
+- Risk level assessment
+
+### 📝 Draft Editor
+- Generate email/chat drafts from short prompts
+- Analyze drafts for sentiment and tone
+- Compliance validation before sending
+- Template generation for common scenarios
+- Real-time suggestions for improvement
+
+### 🔔 Notifications & Reminders
+- Smart categorization (Renewals, Follow-ups, Compliance, Upsells)
+- Interactive timeline view
+- AI-based reminder rescheduling
+- Priority-based alerts
+
+### ⚙️ Admin Panel (Web Only)
+- Communications dashboard with filtering
+- Template management with approval workflow
+- Immutable audit log
+- Guardrails management for compliance
+- Analytics and compliance trends
+- Role-based access control
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
 
+### Installation
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Run the development server:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+src/
+├── app/                    # Next.js app router pages
+│   ├── dashboard/         # Dashboard overview
+│   ├── chat/              # AI chat interface
+│   ├── leads/             # Lead management
+│   ├── compliance/        # Compliance monitoring
+│   └── api/               # API routes
+├── components/            # React components
+│   ├── layout/           # Layout components
+│   ├── chat/             # Chat-related components
+│   ├── leads/            # Lead management components
+│   ├── compliance/       # Compliance components
+│   └── ui/               # Reusable UI components
+├── lib/                  # Utility functions
+└── types/                # TypeScript type definitions
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Key Technologies
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Lucide React** - Icons
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Compliance Features
 
-## Deploy on Vercel
+The application actively monitors and prevents:
+- Guaranteed returns claims
+- Risk-free investment promises
+- Unlicensed financial advice
+- Missing IRDAI disclaimers
+- Non-compliant terminology
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Future Enhancements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Integration with actual AI/LLM services (OpenAI, Anthropic, etc.)
+- Voice-to-text and text-to-voice capabilities
+- Multi-lingual support (Hindi, Tamil, Telugu, Marathi)
+- Integration with CRM systems
+- WhatsApp and email integration
+- Advanced analytics and reporting
+- Mobile app version
+
+## License
+
+Proprietary - For internal use only

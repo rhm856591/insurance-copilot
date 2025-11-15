@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
         {stats.map((stat, i) => (
-          <Card key={stat.label} hover gradient className="animate-slideUp" style={{ animationDelay: `${i * 0.1}s` }}>
+          <Card key={stat.label} className="hover:shadow-md transition-shadow">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
               <div className="flex-1">
                 <p className="text-xs md:text-sm text-gray-600 font-medium">{stat.label}</p>
@@ -39,7 +39,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:gap-6 lg:grid-cols-2">
-        <Card gradient>
+        <Card>
           <h3 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Recent Activities
           </h3>

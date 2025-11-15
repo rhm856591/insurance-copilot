@@ -126,7 +126,7 @@ export default function CustomersPage() {
       </div>
 
       {/* Search and Filters */}
-      <Card gradient>
+      <Card>
         <div className="flex flex-col gap-2 md:gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400" size={18} />
@@ -153,7 +153,7 @@ export default function CustomersPage() {
       {/* Customer List */}
       <div className="grid grid-cols-1 gap-3 md:gap-4">
         {filteredCustomers.map((customer, i) => (
-          <Card key={customer.id} hover gradient className="animate-slideUp" style={{ animationDelay: `${i * 0.1}s` }}>
+          <Card key={customer.id} className="hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-3">

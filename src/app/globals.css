@@ -55,3 +55,95 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Voice Input Wave Animation */
+@keyframes wave {
+  0%, 100% {
+    height: 12px;
+    opacity: 0.5;
+  }
+  15% {
+    height: 28px;
+    opacity: 0.8;
+  }
+  30% {
+    height: 48px;
+    opacity: 1;
+  }
+  45% {
+    height: 36px;
+    opacity: 0.9;
+  }
+  60% {
+    height: 52px;
+    opacity: 1;
+  }
+  75% {
+    height: 24px;
+    opacity: 0.7;
+  }
+}
+
+.animate-wave {
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+/* Mobile optimizations for wave */
+@media (max-width: 768px) {
+  @keyframes wave {
+    0%, 100% {
+      height: 8px;
+      opacity: 0.5;
+    }
+    15% {
+      height: 20px;
+      opacity: 0.8;
+    }
+    30% {
+      height: 36px;
+      opacity: 1;
+    }
+    45% {
+      height: 28px;
+      opacity: 0.9;
+    }
+    60% {
+      height: 40px;
+      opacity: 1;
+    }
+    75% {
+      height: 18px;
+      opacity: 0.7;
+    }
+  }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Slide up animation */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}

@@ -21,18 +21,20 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
         {stats.map((stat, i) => (
-          <Card key={stat.label} className="hover:shadow-md transition-shadow">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-              <div className="flex-1">
-                <p className="text-xs md:text-sm text-gray-600 font-medium">{stat.label}</p>
-                <p className="text-xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-1">
-                  {stat.value}
-                </p>
-                <Badge variant={stat.variant} className="mt-2 text-xs">{stat.change}</Badge>
+          <Card key={stat.label} className="hover:shadow-md transition-shadow active:scale-[0.98]">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] md:text-sm text-gray-600 font-medium truncate">{stat.label}</p>
+                  <p className="text-lg md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mt-1">
+                    {stat.value}
+                  </p>
+                </div>
+                <div className="p-1.5 md:p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg md:rounded-xl shadow-lg flex-shrink-0">
+                  <stat.icon className="text-white" size={16} />
+                </div>
               </div>
-              <div className="p-2 md:p-3 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl shadow-lg">
-                <stat.icon className="text-white" size={20} />
-              </div>
+              <Badge variant={stat.variant} className="text-[10px] md:text-xs w-fit">{stat.change}</Badge>
             </div>
           </Card>
         ))}
@@ -50,16 +52,16 @@ export default function DashboardPage() {
               { action: 'Lead qualified: Priya Sharma', time: '1 hour ago' },
               { action: 'Compliance check passed', time: '2 hours ago' },
             ].map((activity, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b last:border-0">
-                <span className="text-sm text-gray-700">{activity.action}</span>
-                <span className="text-xs text-gray-500">{activity.time}</span>
+              <div key={i} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-2 border-b last:border-0">
+                <span className="text-xs md:text-sm text-gray-700">{activity.action}</span>
+                <span className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">{activity.time}</span>
               </div>
             ))}
           </div>
         </Card>
 
         <Card>
-          <h3 className="text-lg font-semibold mb-4">Upcoming Tasks</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Upcoming Tasks</h3>
           <div className="space-y-3">
             {[
               { task: 'Follow-up with Amit Patel', due: 'Today, 3:00 PM' },
@@ -67,9 +69,9 @@ export default function DashboardPage() {
               { task: 'Send ULIP comparison to Vikram Singh', due: 'Tomorrow' },
               { task: 'Compliance training session', due: 'Friday' },
             ].map((task, i) => (
-              <div key={i} className="flex justify-between items-center py-2 border-b last:border-0">
-                <span className="text-sm text-gray-700">{task.task}</span>
-                <span className="text-xs text-gray-500">{task.due}</span>
+              <div key={i} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-2 border-b last:border-0">
+                <span className="text-xs md:text-sm text-gray-700">{task.task}</span>
+                <span className="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">{task.due}</span>
               </div>
             ))}
           </div>

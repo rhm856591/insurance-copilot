@@ -41,38 +41,38 @@ export default function CompliancePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4 lg:gap-6">
-        <Card>
+        <Card className="active:scale-[0.98] transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Checks Today</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">47</p>
+              <p className="text-xs md:text-sm text-gray-600">Checks Today</p>
+              <p className="text-xl md:text-2xl font-bold text-gray-900 mt-1">47</p>
             </div>
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <Shield className="text-blue-600" size={24} />
+            <div className="p-2 md:p-3 bg-blue-50 rounded-lg flex-shrink-0">
+              <Shield className="text-blue-600" size={20} />
             </div>
           </div>
         </Card>
 
-        <Card>
+        <Card className="active:scale-[0.98] transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Passed</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">42</p>
+              <p className="text-xs md:text-sm text-gray-600">Passed</p>
+              <p className="text-xl md:text-2xl font-bold text-green-600 mt-1">42</p>
             </div>
-            <div className="p-3 bg-green-50 rounded-lg">
-              <CheckCircle className="text-green-600" size={24} />
+            <div className="p-2 md:p-3 bg-green-50 rounded-lg flex-shrink-0">
+              <CheckCircle className="text-green-600" size={20} />
             </div>
           </div>
         </Card>
 
-        <Card>
+        <Card className="active:scale-[0.98] transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Issues Found</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">5</p>
+              <p className="text-xs md:text-sm text-gray-600">Issues Found</p>
+              <p className="text-xl md:text-2xl font-bold text-red-600 mt-1">5</p>
             </div>
-            <div className="p-3 bg-red-50 rounded-lg">
-              <AlertTriangle className="text-red-600" size={24} />
+            <div className="p-2 md:p-3 bg-red-50 rounded-lg flex-shrink-0">
+              <AlertTriangle className="text-red-600" size={20} />
             </div>
           </div>
         </Card>
@@ -81,14 +81,14 @@ export default function CompliancePage() {
       <ComplianceAlert />
 
       <Card>
-        <h3 className="text-lg font-semibold mb-4">Recent Compliance Checks</h3>
-        <div className="space-y-4">
+        <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Recent Compliance Checks</h3>
+        <div className="space-y-3 md:space-y-4">
           {recentChecks.map((check) => (
-            <div key={check.id} className="border-b last:border-0 pb-4 last:pb-0">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{check.message}</p>
-                  <p className="text-xs text-gray-500 mt-1">
+            <div key={check.id} className="border-b last:border-0 pb-3 md:pb-4 last:pb-0">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium text-gray-900">{check.message}</p>
+                  <p className="text-[10px] md:text-xs text-gray-500 mt-1">
                     {check.timestamp.toLocaleString('en-IN')}
                   </p>
                 </div>
@@ -100,15 +100,16 @@ export default function CompliancePage() {
                       ? 'warning'
                       : 'danger'
                   }
+                  className="w-fit"
                 >
-                  {check.status === 'passed' && <CheckCircle size={14} className="mr-1" />}
-                  {check.status === 'warning' && <AlertTriangle size={14} className="mr-1" />}
-                  {check.status === 'failed' && <XCircle size={14} className="mr-1" />}
-                  {check.status.toUpperCase()}
+                  {check.status === 'passed' && <CheckCircle size={12} className="mr-1" />}
+                  {check.status === 'warning' && <AlertTriangle size={12} className="mr-1" />}
+                  {check.status === 'failed' && <XCircle size={12} className="mr-1" />}
+                  <span className="text-[10px] md:text-xs">{check.status.toUpperCase()}</span>
                 </Badge>
               </div>
               {check.issues.length > 0 && (
-                <ul className="list-disc list-inside text-sm text-red-600 space-y-1 mt-2">
+                <ul className="list-disc list-inside text-xs md:text-sm text-red-600 space-y-1 mt-2">
                   {check.issues.map((issue, i) => (
                     <li key={i}>{issue}</li>
                   ))}

@@ -138,41 +138,41 @@ export default function AdminPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 lg:gap-6">
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Communications</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">1,247</p>
+      <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4 lg:gap-6">
+        <Card className="active:scale-[0.98] transition-transform">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] md:text-sm text-gray-600 truncate">Total Communications</p>
+              <p className="text-lg md:text-2xl font-bold text-gray-900 mt-1">1,247</p>
             </div>
-            <MessageSquare className="text-blue-600" size={24} />
+            <MessageSquare className="text-blue-600 flex-shrink-0" size={18} />
           </div>
         </Card>
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Compliance Rate</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">94.2%</p>
+        <Card className="active:scale-[0.98] transition-transform">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] md:text-sm text-gray-600 truncate">Compliance Rate</p>
+              <p className="text-lg md:text-2xl font-bold text-green-600 mt-1">94.2%</p>
             </div>
-            <Shield className="text-green-600" size={24} />
+            <Shield className="text-green-600 flex-shrink-0" size={18} />
           </div>
         </Card>
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Flagged Today</p>
-              <p className="text-2xl font-bold text-red-600 mt-1">8</p>
+        <Card className="active:scale-[0.98] transition-transform">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] md:text-sm text-gray-600 truncate">Flagged Today</p>
+              <p className="text-lg md:text-2xl font-bold text-red-600 mt-1">8</p>
             </div>
-            <AlertTriangle className="text-red-600" size={24} />
+            <AlertTriangle className="text-red-600 flex-shrink-0" size={18} />
           </div>
         </Card>
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active Templates</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">24</p>
+        <Card className="active:scale-[0.98] transition-transform">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] md:text-sm text-gray-600 truncate">Active Templates</p>
+              <p className="text-lg md:text-2xl font-bold text-gray-900 mt-1">24</p>
             </div>
-            <FileText className="text-blue-600" size={24} />
+            <FileText className="text-blue-600 flex-shrink-0" size={18} />
           </div>
         </Card>
       </div>
@@ -200,51 +200,51 @@ export default function AdminPage() {
       {/* Tab Content */}
       {activeTab === 'communications' && (
         <Card>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold">Recent Communications</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+            <h3 className="text-base md:text-lg font-semibold">Recent Communications</h3>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Filter size={16} className="mr-2" />
-                Filter
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <Filter size={14} className="mr-1 md:mr-2" />
+                <span className="text-xs md:text-sm">Filter</span>
               </Button>
-              <Button variant="outline" size="sm">
-                <Download size={16} className="mr-2" />
-                Export
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <Download size={14} className="mr-1 md:mr-2" />
+                <span className="text-xs md:text-sm">Export</span>
               </Button>
             </div>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {communications.map((comm) => (
-              <div key={comm.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="font-semibold text-gray-900">{comm.agent}</span>
+              <div key={comm.id} className="border border-gray-200 rounded-lg p-3 md:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-sm md:text-base font-semibold text-gray-900">{comm.agent}</span>
                       <span className="text-gray-400">→</span>
-                      <span className="text-gray-700">{comm.customer}</span>
-                      <Badge variant="info">{comm.channel}</Badge>
+                      <span className="text-xs md:text-sm text-gray-700">{comm.customer}</span>
+                      <Badge variant="info" className="text-[10px] md:text-xs">{comm.channel}</Badge>
                     </div>
-                    <p className="text-xs text-gray-500">{comm.timestamp.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500">{comm.timestamp.toLocaleString('en-IN')}</p>
                   </div>
-                  <Badge variant={comm.compliance === 'passed' ? 'success' : 'danger'}>
+                  <Badge variant={comm.compliance === 'passed' ? 'success' : 'danger'} className="w-fit text-[10px] md:text-xs">
                     {comm.compliance === 'passed' ? 'Compliant' : 'Flagged'}
                   </Badge>
                 </div>
-                <p className="text-sm text-gray-700 mb-3 p-3 bg-gray-50 rounded">{comm.message}</p>
+                <p className="text-xs md:text-sm text-gray-700 mb-3 p-2 md:p-3 bg-gray-50 rounded">{comm.message}</p>
                 {comm.issues && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
-                    <p className="text-sm font-semibold text-red-900 mb-1">Compliance Issues:</p>
-                    <ul className="list-disc list-inside text-sm text-red-800">
+                  <div className="bg-red-50 border-l-4 border-red-500 p-2 md:p-3 rounded mb-3">
+                    <p className="text-xs md:text-sm font-semibold text-red-900 mb-1">Compliance Issues:</p>
+                    <ul className="list-disc list-inside text-xs md:text-sm text-red-800">
                       {comm.issues.map((issue, i) => (
                         <li key={i}>{issue}</li>
                       ))}
                     </ul>
                   </div>
                 )}
-                <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline">View Thread</Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button size="sm" variant="outline" className="w-full sm:w-auto">View Thread</Button>
                   {comm.compliance === 'flagged' && (
-                    <Button size="sm" variant="outline">Review & Approve</Button>
+                    <Button size="sm" variant="outline" className="w-full sm:w-auto">Review & Approve</Button>
                   )}
                 </div>
               </div>
@@ -255,28 +255,28 @@ export default function AdminPage() {
 
       {activeTab === 'templates' && (
         <Card>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold">Message Templates</h3>
-            <Button size="sm">Add New Template</Button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+            <h3 className="text-base md:text-lg font-semibold">Message Templates</h3>
+            <Button size="sm" className="w-full sm:w-auto">Add New Template</Button>
           </div>
           <div className="space-y-3">
             {templates.map((template) => (
-              <div key={template.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{template.name}</h4>
-                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+              <div key={template.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 md:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 active:scale-[0.98] transition-transform">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm md:text-base font-semibold text-gray-900">{template.name}</h4>
+                  <div className="flex flex-wrap items-center gap-2 mt-1 text-xs md:text-sm text-gray-600">
                     <span>Category: {template.category}</span>
-                    <span>•</span>
+                    <span className="hidden sm:inline">•</span>
                     <span>Used {template.usage} times</span>
-                    <span>•</span>
-                    <span>Updated {template.lastUpdated.toLocaleDateString('en-IN')}</span>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="hidden md:inline">Updated {template.lastUpdated.toLocaleDateString('en-IN')}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={template.status === 'approved' ? 'success' : 'warning'}>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Badge variant={template.status === 'approved' ? 'success' : 'warning'} className="text-[10px] md:text-xs">
                     {template.status}
                   </Badge>
-                  <Button size="sm" variant="outline">Edit</Button>
+                  <Button size="sm" variant="outline" className="flex-1 sm:flex-none">Edit</Button>
                 </div>
               </div>
             ))}

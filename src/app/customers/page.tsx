@@ -127,21 +127,21 @@ export default function CustomersPage() {
 
       {/* Search and Filters */}
       <Card>
-        <div className="flex flex-col gap-2 md:gap-4">
+        <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400" size={18} />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400" size={16} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search customers..."
-              className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm md:text-base min-h-[44px] shadow-sm"
+              className="w-full pl-9 md:pl-10 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm md:text-base min-h-[44px] shadow-sm"
             />
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="px-3 md:px-4 py-2 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base min-h-[44px] shadow-sm font-medium"
+            className="px-3 md:px-4 py-2.5 md:py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base min-h-[44px] shadow-sm font-medium sm:w-auto"
           >
             <option value="renewal">Sort by Renewal</option>
             <option value="sentiment">Sort by Sentiment</option>
@@ -153,15 +153,15 @@ export default function CustomersPage() {
       {/* Customer List */}
       <div className="grid grid-cols-1 gap-3 md:gap-4">
         {filteredCustomers.map((customer, i) => (
-          <Card key={customer.id} className="hover:shadow-md transition-shadow">
+          <Card key={customer.id} className="hover:shadow-md transition-shadow active:scale-[0.98]">
             <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{customer.name}</h3>
-                    <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-900">{customer.name}</h3>
+                    <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2">
                       {customer.tags.map((tag) => (
-                        <Badge key={tag} variant="info" className="text-xs">
+                        <Badge key={tag} variant="info" className="text-[10px] md:text-xs">
                           {tag}
                         </Badge>
                       ))}
@@ -169,51 +169,52 @@ export default function CustomersPage() {
                   </div>
                   <Badge
                     variant={customer.sentiment >= 0.6 ? 'success' : customer.sentiment >= 0.3 ? 'warning' : 'danger'}
+                    className="text-[10px] md:text-xs w-fit"
                   >
                     Sentiment: {Math.round(customer.sentiment * 100)}%
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Phone size={16} />
-                      <span>{customer.phone}</span>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                      <Phone size={14} className="flex-shrink-0" />
+                      <span className="truncate">{customer.phone}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Mail size={16} />
-                      <span>{customer.email}</span>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                      <Mail size={14} className="flex-shrink-0" />
+                      <span className="truncate">{customer.email}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar size={16} className="text-gray-600" />
-                      <span className={`font-medium px-2 py-1 rounded ${getRenewalColor(customer.daysToRenewal)}`}>
+                    <div className="flex items-center gap-2 text-xs md:text-sm">
+                      <Calendar size={14} className="text-gray-600 flex-shrink-0" />
+                      <span className={`font-medium px-2 py-1 rounded text-[10px] md:text-xs ${getRenewalColor(customer.daysToRenewal)}`}>
                         Renewal in {customer.daysToRenewal} days
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <AlertCircle size={16} />
-                      <span>{customer.nextEvent}</span>
+                    <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                      <AlertCircle size={14} className="flex-shrink-0" />
+                      <span className="truncate">{customer.nextEvent}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Policies */}
-                <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Active Policies</h4>
+                <div className="bg-gray-50 rounded-lg p-2 md:p-3 mb-3 md:mb-4">
+                  <h4 className="text-xs md:text-sm font-semibold text-gray-700 mb-2">Active Policies</h4>
                   <div className="space-y-2">
                     {customer.policies.map((policy) => (
-                      <div key={policy.number} className="flex items-center justify-between text-sm">
-                        <div>
+                      <div key={policy.number} className="flex items-center justify-between text-xs md:text-sm gap-2">
+                        <div className="flex-1 min-w-0">
                           <span className="font-medium text-gray-900">{policy.number}</span>
-                          <span className="text-gray-600 ml-2">• {policy.type}</span>
+                          <span className="text-gray-600 ml-1 md:ml-2 text-[10px] md:text-xs">• {policy.type}</span>
                         </div>
-                        <div className="text-right">
-                          <div className="font-medium text-gray-900">
+                        <div className="text-right flex-shrink-0">
+                          <div className="font-medium text-gray-900 text-xs md:text-sm">
                             ₹{(policy.sumAssured / 100000).toFixed(0)}L
                           </div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-[10px] md:text-xs text-gray-600">
                             ₹{(policy.premium / 1000).toFixed(0)}k/year
                           </div>
                         </div>
@@ -226,14 +227,14 @@ export default function CustomersPage() {
                   <Button
                     size="sm"
                     onClick={() => setSelectedCustomer(customer)}
-                    className="min-h-[44px] text-xs md:text-sm"
+                    className="flex-1 sm:flex-none"
                   >
                     View Details
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="min-h-[44px] text-xs md:text-sm"
+                    className="flex-1 sm:flex-none"
                     onClick={() => {
                       setMessageRecipient(customer);
                       setShowMessageModal(true);
@@ -244,7 +245,7 @@ export default function CustomersPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="hidden sm:block min-h-[44px] text-xs md:text-sm"
+                    className="hidden lg:block"
                   >
                     Schedule Follow-up
                   </Button>

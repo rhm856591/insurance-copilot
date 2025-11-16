@@ -109,34 +109,37 @@ export default function SendMessageModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-end md:items-center justify-center p-0 md:p-4">
         <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={onClose} />
-        <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl">
+        <div className="relative bg-white rounded-t-2xl md:rounded-lg shadow-xl w-full max-w-full md:max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto animate-slideUp">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="sticky top-0 bg-white z-10 flex items-center justify-between p-4 md:p-6 border-b">
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">Send Message</h3>
-              <p className="text-sm text-gray-600 mt-1">To: {recipient.name}</p>
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900">Send Message</h3>
+              <p className="text-xs md:text-sm text-gray-600 mt-1">To: {recipient.name}</p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600 p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            >
               <X size={24} />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-4 md:p-6 space-y-4 md:space-y-6">
             {/* Channel Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm md:text-base font-medium text-gray-700 mb-3">
                 Select Channel
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 md:gap-3">
                 {channels.map((ch) => (
                   <button
                     key={ch.id}
                     onClick={() => setChannel(ch.id)}
                     disabled={!ch.available}
-                    className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all ${
+                    className={`flex flex-col items-center p-3 md:p-4 rounded-lg border-2 transition-all min-h-[88px] active:scale-95 ${
                       channel === ch.id
                         ? 'border-blue-500 bg-blue-50'
                         : ch.available
@@ -145,11 +148,11 @@ export default function SendMessageModal({
                     }`}
                   >
                     <div className={`p-2 rounded-full ${ch.color} bg-opacity-10 mb-2`}>
-                      <ch.icon className={`${ch.color.replace('bg-', 'text-')}`} size={24} />
+                      <ch.icon className={`${ch.color.replace('bg-', 'text-')}`} size={20} />
                     </div>
-                    <span className="text-sm font-medium">{ch.name}</span>
+                    <span className="text-xs md:text-sm font-medium text-center">{ch.name}</span>
                     {!ch.available && (
-                      <span className="text-xs text-red-500 mt-1">Not available</span>
+                      <span className="text-[10px] md:text-xs text-red-500 mt-1">Not available</span>
                     )}
                   </button>
                 ))}
@@ -158,14 +161,14 @@ export default function SendMessageModal({
 
             {/* Prompt */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">
                 Message Context / Prompt
               </label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="E.g., 'Send a policy renewal reminder' or 'Follow up on ULIP inquiry'"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 md:px-4 py-2.5 md:py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 rows={3}
               />
             </div>
@@ -191,28 +194,28 @@ export default function SendMessageModal({
 
             {/* Generated Message Preview */}
             {generatedMessage && (
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-4">
                 {channel === 'email' && subject && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">
                       Subject
                     </label>
                     <input
                       type="text"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 md:px-4 py-2.5 md:py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
                     />
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">
                     Generated Message
                   </label>
                   <textarea
                     value={generatedMessage}
                     onChange={(e) => setGeneratedMessage(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="w-full px-3 md:px-4 py-2.5 md:py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     rows={8}
                   />
                 </div>
@@ -232,14 +235,18 @@ export default function SendMessageModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 p-6 border-t bg-gray-50">
-            <Button variant="outline" onClick={onClose}>
+          <div className="sticky bottom-0 bg-gray-50 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 md:gap-3 p-4 md:p-6 border-t">
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
               Cancel
             </Button>
             <Button
               onClick={handleSend}
               disabled={sending || !prompt.trim()}
-              className="min-w-[120px]"
+              className="w-full sm:w-auto sm:min-w-[120px] order-1 sm:order-2"
             >
               {sending ? (
                 <>

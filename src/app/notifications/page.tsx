@@ -87,37 +87,37 @@ export default function NotificationsPage() {
         {/* Notifications */}
         <div className="lg:col-span-2 space-y-4">
           <Card>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Recent Notifications</h3>
-              <Button size="sm" variant="outline">Mark All Read</Button>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+              <h3 className="text-base md:text-lg font-semibold">Recent Notifications</h3>
+              <Button size="sm" variant="outline" className="w-full sm:w-auto">Mark All Read</Button>
             </div>
             <div className="space-y-3">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-l-4 rounded-lg ${getPriorityColor(notification.priority)}`}
+                  className={`p-3 md:p-4 border-l-4 rounded-lg ${getPriorityColor(notification.priority)}`}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-gray-900">{notification.title}</h4>
-                        <Badge variant={getPriorityBadge(notification.priority)}>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h4 className="text-sm md:text-base font-semibold text-gray-900">{notification.title}</h4>
+                        <Badge variant={getPriorityBadge(notification.priority)} className="text-[10px] md:text-xs">
                           {notification.priority}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-700">{notification.message}</p>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs md:text-sm text-gray-700">{notification.message}</p>
+                      <p className="text-[10px] md:text-xs text-gray-500 mt-2">
                         {notification.time.toLocaleString('en-IN')}
                       </p>
                     </div>
                     {notification.priority === 'high' && (
-                      <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                      <AlertCircle className="text-red-600 flex-shrink-0" size={18} />
                     )}
                   </div>
                   {notification.actionable && (
-                    <div className="flex gap-2 mt-3">
-                      <Button size="sm">Take Action</Button>
-                      <Button size="sm" variant="outline">Snooze</Button>
+                    <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                      <Button size="sm" className="w-full sm:w-auto">Take Action</Button>
+                      <Button size="sm" variant="outline" className="w-full sm:w-auto">Snooze</Button>
                     </div>
                   )}
                 </div>
@@ -146,25 +146,25 @@ export default function NotificationsPage() {
         {/* Timeline */}
         <div className="space-y-6">
           <Card>
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="text-blue-600" size={20} />
-              <h3 className="text-lg font-semibold">Today's Timeline</h3>
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
+              <Calendar className="text-blue-600" size={18} />
+              <h3 className="text-base md:text-lg font-semibold">Today's Timeline</h3>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {upcomingTasks.map((task, i) => (
-                <div key={i} className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Clock size={14} className="text-blue-600" />
+                <div key={i} className="flex gap-2 md:gap-3">
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <div className="w-7 h-7 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Clock size={12} className="text-blue-600" />
                     </div>
                     {i < upcomingTasks.length - 1 && (
-                      <div className="w-0.5 h-12 bg-gray-200 my-1"></div>
+                      <div className="w-0.5 h-10 md:h-12 bg-gray-200 my-1"></div>
                     )}
                   </div>
-                  <div className="flex-1 pb-4">
-                    <p className="text-xs text-gray-500 mb-1">{task.time}</p>
-                    <p className="text-sm font-medium text-gray-900">{task.task}</p>
-                    <Badge variant="info" className="mt-2 text-xs">
+                  <div className="flex-1 pb-3 md:pb-4 min-w-0">
+                    <p className="text-[10px] md:text-xs text-gray-500 mb-1">{task.time}</p>
+                    <p className="text-xs md:text-sm font-medium text-gray-900">{task.task}</p>
+                    <Badge variant="info" className="mt-2 text-[10px] md:text-xs">
                       {task.type}
                     </Badge>
                   </div>
@@ -174,19 +174,19 @@ export default function NotificationsPage() {
           </Card>
 
           <Card>
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+            <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Quick Actions</h3>
             <div className="space-y-2">
-              <Button className="w-full justify-start" variant="outline">
-                <CheckCircle size={16} className="mr-2" />
-                View All Tasks
+              <Button className="w-full justify-start text-xs md:text-sm" variant="outline">
+                <CheckCircle size={16} className="mr-2 flex-shrink-0" />
+                <span>View All Tasks</span>
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Calendar size={16} className="mr-2" />
-                Schedule Follow-up
+              <Button className="w-full justify-start text-xs md:text-sm" variant="outline">
+                <Calendar size={16} className="mr-2 flex-shrink-0" />
+                <span>Schedule Follow-up</span>
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Bell size={16} className="mr-2" />
-                Set Custom Reminder
+              <Button className="w-full justify-start text-xs md:text-sm" variant="outline">
+                <Bell size={16} className="mr-2 flex-shrink-0" />
+                <span>Set Custom Reminder</span>
               </Button>
             </div>
           </Card>

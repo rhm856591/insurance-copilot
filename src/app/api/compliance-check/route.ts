@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COMPLIANCE_KEYWORDS } from '@/lib/constants';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
     const { text } = await request.json();
 
-    // Check for prohibited keywords
+    // Basic keyword check (fast)
     const issues: string[] = [];
     const lowerText = text.toLowerCase();
 
@@ -24,24 +27,61 @@ export async function POST(request: NextRequest) {
       issues.push('Investment products should include market risk disclaimer.');
     }
 
-    // Sentiment analysis (mock)
-    const positiveWords = ['benefit', 'advantage', 'protect', 'secure', 'coverage', 'help'];
-    const negativeWords = ['risk', 'loss', 'expensive', 'complicated'];
-    
+    // Use Gemini for advanced analysis
     let sentimentScore = 0.5;
-    positiveWords.forEach((word) => {
-      if (lowerText.includes(word)) sentimentScore += 0.05;
-    });
-    negativeWords.forEach((word) => {
-      if (lowerText.includes(word)) sentimentScore -= 0.05;
-    });
-    sentimentScore = Math.max(0, Math.min(1, sentimentScore));
+    let tone = 'Neutral';
+    let aiSuggestions: string[] = [];
 
-    // Tone analysis
-    const tone = sentimentScore >= 0.6 ? 'Professional & Positive' : 
-                 sentimentScore >= 0.4 ? 'Neutral' : 'Needs Improvement';
+    try {
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      
+      const prompt = `Analyze this insurance communication message for compliance and tone:
 
-    // Generate suggestions
+Message: "${text}"
+
+Provide analysis in JSON format:
+{
+  "sentiment": 0.0-1.0 (0=negative, 0.5=neutral, 1=positive),
+  "tone": "Professional & Positive" | "Neutral" | "Needs Improvement",
+  "suggestions": ["suggestion 1", "suggestion 2", "suggestion 3"]
+}
+
+Focus on:
+- IRDAI compliance
+- Professional tone
+- Customer-friendly language
+- Clarity and transparency`;
+
+      const result = await model.generateContent(prompt);
+      const response = result.response.text();
+      
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0]);
+        sentimentScore = analysis.sentiment || 0.5;
+        tone = analysis.tone || 'Neutral';
+        aiSuggestions = analysis.suggestions || [];
+      }
+    } catch (apiError) {
+      console.error('Gemini analysis error:', apiError);
+      // Fallback to basic analysis
+      const positiveWords = ['benefit', 'advantage', 'protect', 'secure', 'coverage', 'help'];
+      const negativeWords = ['risk', 'loss', 'expensive', 'complicated'];
+      
+      sentimentScore = 0.5;
+      positiveWords.forEach((word) => {
+        if (lowerText.includes(word)) sentimentScore += 0.05;
+      });
+      negativeWords.forEach((word) => {
+        if (lowerText.includes(word)) sentimentScore -= 0.05;
+      });
+      sentimentScore = Math.max(0, Math.min(1, sentimentScore));
+      
+      tone = sentimentScore >= 0.6 ? 'Professional & Positive' : 
+            sentimentScore >= 0.4 ? 'Neutral' : 'Needs Improvement';
+    }
+
+    // Combine suggestions
     const suggestions: string[] = [];
     if (issues.length === 0) {
       suggestions.push('Message is compliant with IRDAI guidelines.');
@@ -50,12 +90,15 @@ export async function POST(request: NextRequest) {
       suggestions.push('Add appropriate disclaimers for investment products.');
     }
 
-    if (sentimentScore < 0.5) {
-      suggestions.push('Consider using more positive and reassuring language.');
-    }
-
-    if (!lowerText.includes('please') && !lowerText.includes('thank')) {
-      suggestions.push('Add courteous phrases like "please" or "thank you" for better tone.');
+    if (aiSuggestions.length > 0) {
+      suggestions.push(...aiSuggestions);
+    } else {
+      if (sentimentScore < 0.5) {
+        suggestions.push('Consider using more positive and reassuring language.');
+      }
+      if (!lowerText.includes('please') && !lowerText.includes('thank')) {
+        suggestions.push('Add courteous phrases like "please" or "thank you" for better tone.');
+      }
     }
 
     const isCompliant = issues.length === 0;

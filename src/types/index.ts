@@ -16,6 +16,11 @@ export interface Message {
   content: string;
   timestamp: Date;
   sentiment?: number;
+  metadata?: {
+    whatsapp?: string;
+    email?: string;
+    voice_text?: string;
+  };
 }
 
 export interface ComplianceCheck {

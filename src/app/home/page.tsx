@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, Sparkles, TrendingUp, Users, Bell } from 'lucide-react';
+import { Send, Mic, Paperclip, Sparkles, TrendingUp, Users, Bell, ChevronDown, ChevronRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import VoiceInputModal from '@/components/voice/VoiceInputModal';
+import AISuggestions from '@/components/ai/AISuggestions';
+import MessageActions from '@/components/chat/MessageActions';
 import { Message } from '@/types';
 
 export default function HomePage() {
@@ -26,12 +28,14 @@ What would you like to focus on first?`,
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const quickActions = [
     { icon: Users, label: 'Show top leads', command: 'Show me today\'s top leads' },
     { icon: Bell, label: 'View reminders', command: 'Show my reminders' },
     { icon: TrendingUp, label: 'Renewals', command: 'Show upcoming renewals' },
+    { icon: TrendingUp, label: 'Cross-sell Report', command: 'Run a report to list clients with only one policy type. Prioritize those with high-value existing policies for outreach regarding complementary products.' },
   ];
 
   const scrollToBottom = () => {
@@ -57,12 +61,79 @@ What would you like to focus on first?`,
     setInput('');
     setLoading(true);
 
-    // Mock AI response based on command
-    setTimeout(() => {
-      let response = '';
-      const lower = messageText.toLowerCase();
+    try {
+      // Call the real AI API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: messageText }),
+      });
 
-      if (lower.includes('lead')) {
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: result.data.agent_reply,
+          timestamp: new Date(),
+          metadata: {
+            whatsapp: result.data.whatsapp,
+            email: result.data.email,
+            voice_text: result.data.voice_text,
+          },
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      
+      // Fallback to mock response if API fails
+      const lower = messageText.toLowerCase();
+      let response = '';
+
+      if (lower.includes('report') || lower.includes('cross-sell') || lower.includes('complementary')) {
+        response = `📊 **Cross-Sell Opportunities Report**
+
+**Customers with Single Policy (High Priority)**
+
+🔴 **High Value Customers**
+
+1. **Amit Patel** (Age: 45)
+   Current: Term Life Pro (₹1 Cr coverage)
+   Recommended: Health Shield + Child Future Plan
+   Priority: HIGH - Mature age, likely has family
+   Contact: amit.patel@example.com | +91 98765 43212
+   
+2. **Sneha Reddy** (Age: 35)
+   Current: Child Future Plan
+   Recommended: Term Life Pro + Health Shield
+   Priority: HIGH - Has child, needs comprehensive coverage
+   Contact: sneha.reddy@example.com | +91 98765 43213
+
+🟡 **Medium Priority**
+
+3. **Priya Sharma** (Age: 28)
+   Current: ULIP Wealth Plus
+   Recommended: Term Life Pro + Health Shield
+   Priority: MEDIUM - Young professional, growing needs
+   Contact: priya.sharma@example.com | +91 98765 43211
+
+**Summary:**
+• Total single-policy customers: 3
+• High-value opportunities: 2
+• Potential additional premium: ₹45,000/year
+• Recommended action: Personalized outreach within 7 days
+
+**Next Steps:**
+1. Generate personalized messages for each customer
+2. Schedule follow-up calls
+3. Prepare policy comparison documents
+
+Would you like me to draft outreach messages for any of these customers?`;
+      } else if (lower.includes('lead')) {
         response = `Here are your top 5 leads today:
 
 🔥 **Hot Leads**
@@ -133,8 +204,9 @@ What would you like to do?`;
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -147,7 +219,7 @@ What would you like to do?`;
               <Sparkles className="text-white" size={16} />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-gray-900">AI Copilot</h1>
+              <h1 className="text-lg md:text-xl font-bold text-gray-900">ZenPolicy AI</h1>
               <p className="text-xs md:text-sm text-gray-600">Your intelligent assistant</p>
             </div>
           </div>
@@ -168,24 +240,33 @@ What would you like to do?`;
                   <Sparkles className="text-white" size={16} />
                 </div>
               )}
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                  message.role === 'agent'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-900 shadow-sm border border-gray-100'
-                }`}
-              >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                <span
-                  className={`text-xs mt-2 block ${
-                    message.role === 'agent' ? 'text-blue-100' : 'text-gray-500'
+              <div className={`${message.role === 'assistant' ? 'max-w-[80%]' : 'max-w-[80%]'}`}>
+                <div
+                  className={`rounded-2xl px-4 py-3 ${
+                    message.role === 'agent'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-900 shadow-sm border border-gray-100'
                   }`}
                 >
-                  {message.timestamp.toLocaleTimeString('en-IN', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                  <span
+                    className={`text-xs mt-2 block ${
+                      message.role === 'agent' ? 'text-blue-100' : 'text-gray-500'
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString('en-IN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+                {message.role === 'assistant' && message.metadata && (
+                  <MessageActions
+                    whatsapp={message.metadata.whatsapp}
+                    email={message.metadata.email}
+                    voice_text={message.metadata.voice_text}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -207,24 +288,55 @@ What would you like to do?`;
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* AI Suggestions & Quick Actions */}
       {messages.length <= 2 && (
         <div className="flex-shrink-0 px-3 md:px-6 pb-4">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-xs md:text-sm text-gray-600 mb-2 md:mb-3">Quick actions:</p>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-3">
-              {quickActions.map((action, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(action.command)}
-                  className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-white rounded-xl border border-gray-200 active:scale-95 hover:border-blue-300 hover:shadow-md transition-all min-h-[56px]"
-                >
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <action.icon className="text-blue-600" size={18} />
+          <div className="max-w-4xl mx-auto space-y-4">
+            {/* AI Suggestions - Self-contained collapsible */}
+            <AISuggestions
+              page="home"
+              onActionClick={(suggestion) => handleSend(suggestion.action)}
+              defaultExpanded={false}
+              maxHeight="300px"
+            />
+            
+            {/* Quick Actions - Collapsible */}
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+              <button
+                onClick={() => setShowQuickActions(!showQuickActions)}
+                className="w-full flex items-center justify-between p-3 md:p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={18} className="text-blue-600" />
+                  <span className="text-sm md:text-base font-semibold text-gray-900">Quick Actions</span>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                    {quickActions.length}
+                  </span>
+                </div>
+                {showQuickActions ? (
+                  <ChevronDown size={18} className="text-gray-500" />
+                ) : (
+                  <ChevronRight size={18} className="text-gray-500" />
+                )}
+              </button>
+              {showQuickActions && (
+                <div className="border-t border-gray-200 p-3 md:p-4 max-h-[300px] overflow-y-auto">
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-3">
+                    {quickActions.map((action, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSend(action.command)}
+                        className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-gray-50 rounded-xl border border-gray-200 active:scale-95 hover:border-blue-300 hover:bg-white hover:shadow-md transition-all min-h-[56px]"
+                      >
+                        <div className="p-2 bg-blue-50 rounded-lg">
+                          <action.icon className="text-blue-600" size={18} />
+                        </div>
+                        <span className="text-xs md:text-sm font-medium text-gray-700 text-left">{action.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <span className="text-xs md:text-sm font-medium text-gray-700 text-left">{action.label}</span>
-                </button>
-              ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

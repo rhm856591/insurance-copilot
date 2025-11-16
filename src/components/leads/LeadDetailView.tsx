@@ -5,6 +5,8 @@ import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import SentimentBadge from './SentimentBadge';
+import AIMessageGenerator from '@/components/ai/AIMessageGenerator';
+import AIInsights from '@/components/ai/AIInsights';
 import { Lead } from '@/types';
 import { formatDate, formatCurrency } from '@/lib/utils';
 
@@ -195,6 +197,31 @@ export default function LeadDetailView({ lead, onBack, onSendMessage }: LeadDeta
           </div>
         </Card>
       )}
+
+      {/* AI Insights */}
+      <AIInsights
+        customerData={{
+          name: lead.name,
+          age: lead.age,
+          policies: [],
+          lastContact: lead.lastContact,
+          sentiment: lead.sentiment,
+          notes: lead.notes,
+        }}
+      />
+
+      {/* AI Message Generator */}
+      <AIMessageGenerator
+        recipientName={lead.name}
+        recipientType="lead"
+        context={`Lead interested in ${lead.policyInterest}. Status: ${lead.status}. ${lead.notes || ''}`}
+        purpose="follow-up"
+        policyType={lead.policyInterest}
+        onSend={(channel, message) => {
+          console.log(`Sending ${channel} message:`, message);
+          // Handle sending message
+        }}
+      />
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-3 sticky bottom-0 bg-white py-4 border-t">

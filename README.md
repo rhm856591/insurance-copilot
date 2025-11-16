@@ -1,143 +1,129 @@
-# Insurance AI Copilot
+# AI Insurance Agent - RAG System
 
-Communication AI Copilot for Life Insurance Agents - A comprehensive Next.js application that assists agents with client interactions, policy explanations, lead nurturing, and compliance monitoring.
+AI-powered insurance agent assistant with multi-channel message generation (WhatsApp, Email, Voice) using Google Gemini and Supabase.
 
 ## Features
 
-### 🏠 Agentic Home Interface
-- Conversational command center powered by AI
-- Voice and text input support
-- Dynamic insights and daily summaries
-- Quick action cards for common tasks
-- Context-aware AI responses
+- 🤖 AI-powered responses using Google Gemini
+- 🔍 RAG (Retrieval Augmented Generation) with vector search
+- 📱 Multi-channel message generation (WhatsApp, Email, Voice)
+- 🗣️ Text-to-speech support
+- 💾 Supabase database with pgvector
+- 🇮🇳 Indian insurance market focus (₹, tax sections)
 
-### 🔐 Secure Authentication
-- Email & Password authentication
-- SSO integration (Azure AD, Okta)
-- Multi-Factor Authentication support
-- Smart session management
-
-### 🤖 AI Chat Assistant
-- Real-time suggestions for client queries
-- Auto-generation of personalized messages and emails
-- Policy explanations in simple language (Term Life, ULIP, Endowment, etc.)
-- Context-aware response generation
-- Multi-modal interface support
-
-### 👥 Lead Management
-- AI-driven prioritization with explainability
-- Sentiment analysis to prioritize hot leads
-- Lead status tracking (Hot, Warm, Cold) with reasoning
-- Conversion probability scoring
-- AI heatmap visualization
-- Best contact time recommendations
-- Enriched lead profiles (age, income, location, source)
-- Smart search and filtering
-
-### 👤 Customer Management
-- Comprehensive customer search (name, policy, phone, email, PAN)
-- Customer detail view with full interaction history
-- Policy portfolio overview
-- AI-powered next best action recommendations
-- Renewal tracking with visual indicators
-- Communication timeline with sentiment markers
-- Scheduled follow-ups management
-
-### ✅ Compliance & Governance
-- Real-time compliance checking
-- Flagging of prohibited terms (guaranteed returns, risk-free, etc.)
-- IRDAI guideline adherence
-- Tone and sentiment analysis
-- Audit trail of communications
-- Risk level assessment
-
-### 📝 Draft Editor
-- Generate email/chat drafts from short prompts
-- Analyze drafts for sentiment and tone
-- Compliance validation before sending
-- Template generation for common scenarios
-- Real-time suggestions for improvement
-
-### 🔔 Notifications & Reminders
-- Smart categorization (Renewals, Follow-ups, Compliance, Upsells)
-- Interactive timeline view
-- AI-based reminder rescheduling
-- Priority-based alerts
-
-### ⚙️ Admin Panel (Web Only)
-- Communications dashboard with filtering
-- Template management with approval workflow
-- Immutable audit log
-- Guardrails management for compliance
-- Analytics and compliance trends
-- Role-based access control
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+
+- Supabase account
+- Google Gemini API key
 
-### Installation
+### Setup
 
-1. Install dependencies:
+1. **Install dependencies**
 ```bash
 npm install
 ```
 
-2. Run the development server:
+2. **Configure environment**
+Copy `.env.example` to `.env.local` and add your keys:
+```env
+GEMINI_API_KEY=your_gemini_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+DATABASE_URL=your_database_url
+```
+
+3. **Setup database**
+```bash
+npm run db:push
+```
+
+4. **Populate with dummy data**
+```bash
+npm run populate-db
+```
+
+5. **Start development server**
 ```bash
 npm run dev
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+Open http://localhost:3000/chat
+
+## Test Queries
+
+- "Explain term life insurance"
+- "What are ULIP benefits?"
+- "Calculate premium for 50 lakh coverage"
+- "How to file a claim?"
+
+## Scripts
+
+```bash
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run db:push          # Push Prisma schema to database
+npm run db:studio        # Open Prisma Studio
+npm run populate-db      # Populate database with dummy data
+npm run test-setup       # Test configuration
+```
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **AI**: Google Gemini (gemini-1.5-pro, text-embedding-004)
+- **Database**: Supabase (PostgreSQL + pgvector)
+- **ORM**: Prisma
+- **Vector Search**: pgvector extension
 
 ## Project Structure
 
 ```
 src/
-├── app/                    # Next.js app router pages
-│   ├── dashboard/         # Dashboard overview
-│   ├── chat/              # AI chat interface
-│   ├── leads/             # Lead management
-│   ├── compliance/        # Compliance monitoring
-│   └── api/               # API routes
-├── components/            # React components
-│   ├── layout/           # Layout components
-│   ├── chat/             # Chat-related components
-│   ├── leads/            # Lead management components
-│   ├── compliance/       # Compliance components
-│   └── ui/               # Reusable UI components
-├── lib/                  # Utility functions
-└── types/                # TypeScript type definitions
+├── app/
+│   ├── api/chat/route.ts       # Chat API endpoint
+│   └── chat/page.tsx           # Chat interface page
+├── components/chat/
+│   ├── ChatInterface.tsx       # Main chat UI
+│   ├── MessageBubble.tsx       # Message display
+│   └── MessageActions.tsx      # Multi-channel templates
+└── lib/
+    ├── ai-agent.ts             # AI agent logic
+    ├── rag.ts                  # RAG functions
+    └── supabase.ts             # Database client
+
+prisma/
+└── schema.prisma               # Database schema
+
+scripts/
+├── populate-dummy-data.ts      # Populate database
+├── generate-embeddings.ts      # Generate embeddings
+└── test-setup.ts               # Test configuration
 ```
 
-## Key Technologies
+## Database Schema
 
-- **Next.js 14** - React framework with App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Lucide React** - Icons
+- **policies** - Insurance policy information
+- **customers** - Customer data
+- **premium_tables** - Premium calculations
+- **knowledge_base** - RAG knowledge with vector embeddings
 
-## Compliance Features
+## API Response Format
 
-The application actively monitors and prevents:
-- Guaranteed returns claims
-- Risk-free investment promises
-- Unlicensed financial advice
-- Missing IRDAI disclaimers
-- Non-compliant terminology
-
-## Future Enhancements
-
-- Integration with actual AI/LLM services (OpenAI, Anthropic, etc.)
-- Voice-to-text and text-to-voice capabilities
-- Multi-lingual support (Hindi, Tamil, Telugu, Marathi)
-- Integration with CRM systems
-- WhatsApp and email integration
-- Advanced analytics and reporting
-- Mobile app version
+```json
+{
+  "success": true,
+  "data": {
+    "agent_reply": "Detailed response...",
+    "whatsapp": "Short WhatsApp message...",
+    "email": "Professional email...",
+    "voice_text": "Audio-ready text..."
+  }
+}
+```
 
 ## License
 
-Proprietary - For internal use only
+MIT

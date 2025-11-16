@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Clock, Bell, CheckCircle, AlertCircle, Phone, Mail, FileText, TrendingUp, Sparkles, ChevronDown, ChevronRight, MoreVertical } from 'lucide-react';
+import { Calendar, Clock, Bell, CheckCircle, AlertCircle, Phone, Mail, FileText, TrendingUp, Sparkles, ChevronDown, ChevronRight, MoreVertical, MessageSquare, Send, Zap } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
+import AISuggestions from '@/components/ai/AISuggestions';
 
 type NotificationCategory = 'all' | 'renewals' | 'followups' | 'compliance' | 'upsell';
 
@@ -19,6 +20,9 @@ interface Notification {
   time: Date;
   actionable: boolean;
   expanded?: boolean;
+  aiInsight?: string;
+  suggestedAction?: string;
+  bestContactTime?: string;
 }
 
 interface TimelineEvent {
@@ -32,6 +36,8 @@ interface TimelineEvent {
 export default function NotificationsPage() {
   const [activeCategory, setActiveCategory] = useState<NotificationCategory>('all');
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
+  const [draftingMessage, setDraftingMessage] = useState<string | null>(null);
+  const [generatedMessage, setGeneratedMessage] = useState<{ whatsapp: string; email: string } | null>(null);
 
   const notifications: Notification[] = [
     {
@@ -44,6 +50,9 @@ export default function NotificationsPage() {
       priority: 'high',
       time: new Date('2024-11-15T09:00:00'),
       actionable: true,
+      aiInsight: 'Customer has been with us for 5 years. High retention probability.',
+      suggestedAction: 'Send personalized renewal reminder with loyalty discount offer',
+      bestContactTime: '6:00 PM - 8:00 PM (Based on past response patterns)',
     },
     {
       id: '2',
@@ -55,6 +64,9 @@ export default function NotificationsPage() {
       priority: 'medium',
       time: new Date('2024-11-15T08:30:00'),
       actionable: true,
+      aiInsight: 'Customer is price-sensitive. Responded well to detailed breakdowns.',
+      suggestedAction: 'Provide premium comparison chart with tax benefits',
+      bestContactTime: '11:00 AM - 1:00 PM (Lunch break)',
     },
     {
       id: '3',
@@ -66,6 +78,9 @@ export default function NotificationsPage() {
       priority: 'medium',
       time: new Date('2024-11-14T16:00:00'),
       actionable: true,
+      aiInsight: 'Documents submitted but missing PAN card copy.',
+      suggestedAction: 'Send WhatsApp with simple upload link and instructions',
+      bestContactTime: '9:00 AM - 11:00 AM (Morning hours)',
     },
     {
       id: '4',
@@ -77,6 +92,9 @@ export default function NotificationsPage() {
       priority: 'low',
       time: new Date('2024-11-14T10:00:00'),
       actionable: true,
+      aiInsight: 'Recently married. Good candidate for family floater plan.',
+      suggestedAction: 'Offer family health plan with spouse coverage benefits',
+      bestContactTime: '7:00 PM - 9:00 PM (Evening)',
     },
     {
       id: '5',
@@ -88,6 +106,9 @@ export default function NotificationsPage() {
       priority: 'high',
       time: new Date('2024-11-13T14:00:00'),
       actionable: true,
+      aiInsight: 'Payment usually delayed by 2-3 days. Not a default risk.',
+      suggestedAction: 'Send friendly reminder with easy payment link',
+      bestContactTime: '5:00 PM - 7:00 PM (After work)',
     },
   ];
 
@@ -157,6 +178,43 @@ export default function NotificationsPage() {
       low: 'bg-green-500',
     };
     return colors[priority as keyof typeof colors] || 'bg-gray-500';
+  };
+
+  const handleGenerateMessage = async (notification: Notification) => {
+    setDraftingMessage(notification.id);
+    
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Draft a ${notification.category} message for ${notification.customer}. Context: ${notification.description}. ${notification.suggestedAction || ''}`,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        setGeneratedMessage({
+          whatsapp: result.data.whatsapp,
+          email: result.data.email,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to generate message:', error);
+      // Fallback message
+      setGeneratedMessage({
+        whatsapp: `Hi ${notification.customer.split(' ')[0]}, this is a reminder about ${notification.description}. Please let us know if you need any assistance. Thanks!`,
+        email: `Dear ${notification.customer},\n\nThis is a friendly reminder regarding ${notification.description}.\n\nPlease feel free to reach out if you have any questions.\n\nBest regards,\nYour Insurance Team`,
+      });
+    } finally {
+      setDraftingMessage(null);
+    }
+  };
+
+  const handleAISuggestionClick = (action: string) => {
+    // Handle AI suggestion actions
+    console.log('AI Suggestion clicked:', action);
   };
 
   return (
@@ -229,7 +287,15 @@ export default function NotificationsPage() {
         </div>
       </Card>
 
-      {/* AI Suggestion */}
+      {/* AI Suggestions */}
+      <AISuggestions
+        page="notifications"
+        onActionClick={(suggestion) => handleAISuggestionClick(suggestion.action)}
+        defaultExpanded={false}
+        maxHeight="400px"
+      />
+
+      {/* Smart AI Insight Card */}
       <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-purple-200">
         <div className="flex items-start gap-3">
           <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex-shrink-0">
@@ -237,22 +303,86 @@ export default function NotificationsPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm md:text-base font-semibold text-gray-900 mb-2">
-              AI suggests: Would you like to send a renewal reminder to Mr. Rajesh Kumar now?
+              🎯 AI Priority Insight
             </h3>
             <p className="text-xs md:text-sm text-gray-700 mb-3">
-              His policy expires in 15 days.
+              Focus on <strong>Rajesh Kumar's renewal</strong> first. He has a 95% retention probability and his policy expires in 15 days. Best contact time: 6-8 PM today.
             </p>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Send Reminder
+              <Button 
+                size="sm" 
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                onClick={() => handleGenerateMessage(notifications[0])}
+                disabled={draftingMessage === notifications[0].id}
+              >
+                {draftingMessage === notifications[0].id ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Drafting...
+                  </>
+                ) : (
+                  <>
+                    <Zap size={14} className="mr-1" />
+                    Auto-Draft Message
+                  </>
+                )}
               </Button>
               <Button size="sm" variant="outline">
-                Schedule Later
+                Schedule for 6 PM
               </Button>
             </div>
           </div>
         </div>
       </Card>
+
+      {/* Generated Message Preview */}
+      {generatedMessage && (
+        <Card className="bg-white border-2 border-blue-200 animate-fadeIn">
+          <div className="flex items-start gap-3 mb-4">
+            <MessageSquare className="text-blue-600" size={20} />
+            <div className="flex-1">
+              <h3 className="text-sm md:text-base font-semibold text-gray-900 mb-1">
+                AI Generated Messages
+              </h3>
+              <p className="text-xs text-gray-600">Review and send or customize</p>
+            </div>
+            <button
+              onClick={() => setGeneratedMessage(null)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            {/* WhatsApp Message */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Phone size={14} className="text-green-600" />
+                <span className="text-xs font-semibold text-green-900">WhatsApp</span>
+              </div>
+              <p className="text-xs text-gray-700 mb-3">{generatedMessage.whatsapp}</p>
+              <Button size="sm" className="bg-green-600 hover:bg-green-700 w-full">
+                <Send size={12} className="mr-1" />
+                Send via WhatsApp
+              </Button>
+            </div>
+
+            {/* Email Message */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Mail size={14} className="text-blue-600" />
+                <span className="text-xs font-semibold text-blue-900">Email</span>
+              </div>
+              <p className="text-xs text-gray-700 whitespace-pre-wrap mb-3">{generatedMessage.email}</p>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 w-full">
+                <Send size={12} className="mr-1" />
+                Send via Email
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Notifications List */}
       <div className="space-y-3">
@@ -305,23 +435,59 @@ export default function NotificationsPage() {
 
                   {/* Expanded Actions */}
                   {isExpanded && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                    <div className="mt-3 pt-3 border-t border-gray-200 space-y-3">
+                      {/* AI Insights */}
+                      {notification.aiInsight && (
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                          <div className="flex items-start gap-2">
+                            <Sparkles size={14} className="text-purple-600 mt-0.5 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-purple-900 mb-1">AI Insight</p>
+                              <p className="text-xs text-gray-700 mb-2">{notification.aiInsight}</p>
+                              {notification.suggestedAction && (
+                                <p className="text-xs text-purple-700">
+                                  <strong>Suggested:</strong> {notification.suggestedAction}
+                                </p>
+                              )}
+                              {notification.bestContactTime && (
+                                <div className="flex items-center gap-1 mt-2 text-xs text-gray-600">
+                                  <Clock size={12} className="text-blue-600" />
+                                  <span>{notification.bestContactTime}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
                       <div className="flex flex-col sm:flex-row gap-2">
-                        <Button size="sm" className="flex-1 sm:flex-none">
-                          Take Action
+                        <Button 
+                          size="sm" 
+                          className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                          onClick={() => handleGenerateMessage(notification)}
+                          disabled={draftingMessage === notification.id}
+                        >
+                          {draftingMessage === notification.id ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                              Drafting...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={14} className="mr-1" />
+                              AI Draft Message
+                            </>
+                          )}
+                        </Button>
+                        <Button size="sm" variant="outline" className="flex-1 sm:flex-none">
+                          <Phone size={14} className="mr-1" />
+                          Call Now
                         </Button>
                         <Button size="sm" variant="outline" className="flex-1 sm:flex-none">
                           <Clock size={14} className="mr-1" />
                           Snooze
                         </Button>
-                        <Button size="sm" variant="outline" className="flex-1 sm:flex-none">
-                          <Calendar size={14} className="mr-1" />
-                          Reschedule
-                        </Button>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <AlertCircle size={12} />
-                        <span>AI suggests contacting between 6-8 PM for best response</span>
                       </div>
                     </div>
                   )}

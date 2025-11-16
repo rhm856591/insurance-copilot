@@ -7,6 +7,7 @@ import LeadFilters from '@/components/leads/LeadFilters';
 import LeadHeatmap from '@/components/leads/LeadHeatmap';
 import LeadDetailView from '@/components/leads/LeadDetailView';
 import SendMessageModal from '@/components/communications/SendMessageModal';
+import AISuggestions from '@/components/ai/AISuggestions';
 import { Lead } from '@/types';
 import { TrendingUp, AlertCircle } from 'lucide-react';
 
@@ -164,6 +165,18 @@ export default function LeadsPage() {
           </button>
         </div>
       </div>
+
+      {/* AI Suggestions - Collapsible with scroll */}
+      <AISuggestions
+        page="leads"
+        data={{ totalLeads: sortedLeads.length, hotLeads: sortedLeads.filter(l => l.status === 'hot').length }}
+        onActionClick={(suggestion) => {
+          console.log('Action clicked:', suggestion);
+          // Handle action
+        }}
+        defaultExpanded={false}
+        maxHeight="350px"
+      />
 
       {/* AI Insights */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

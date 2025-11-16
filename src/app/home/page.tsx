@@ -95,59 +95,84 @@ What would you like to focus on first?`,
       let response = '';
 
       if (lower.includes('report') || lower.includes('cross-sell') || lower.includes('complementary')) {
-        response = `📊 **Cross-Sell Opportunities Report**
-
-**Customers with Single Policy (High Priority)**
-
-🔴 **High Value Customers**
-
-1. **Amit Patel** (Age: 45)
-   Current: Term Life Pro (₹1 Cr coverage)
-   Recommended: Health Shield + Child Future Plan
-   Priority: HIGH - Mature age, likely has family
-   Contact: amit.patel@example.com | +91 98765 43212
-   
-2. **Sneha Reddy** (Age: 35)
-   Current: Child Future Plan
-   Recommended: Term Life Pro + Health Shield
-   Priority: HIGH - Has child, needs comprehensive coverage
-   Contact: sneha.reddy@example.com | +91 98765 43213
-
-🟡 **Medium Priority**
-
-3. **Priya Sharma** (Age: 28)
-   Current: ULIP Wealth Plus
-   Recommended: Term Life Pro + Health Shield
-   Priority: MEDIUM - Young professional, growing needs
-   Contact: priya.sharma@example.com | +91 98765 43211
-
-**Summary:**
-• Total single-policy customers: 3
-• High-value opportunities: 2
-• Potential additional premium: ₹45,000/year
-• Recommended action: Personalized outreach within 7 days
-
-**Next Steps:**
-1. Generate personalized messages for each customer
-2. Schedule follow-up calls
-3. Prepare policy comparison documents
-
-Would you like me to draft outreach messages for any of these customers?`;
+        // Fetch real cross-sell report from API
+        try {
+          const reportResponse = await fetch('/api/reports/cross-sell');
+          const reportResult = await reportResponse.json();
+          
+          if (reportResult.success && reportResult.data) {
+            const { totalSinglePolicyCustomers, highPriorityCount, totalPotentialPremium, opportunities } = reportResult.data;
+            
+            let reportText = `📊 **Cross-Sell Opportunities Report**\n\n**Customers with Single Policy (High Priority)**\n\n`;
+            
+            opportunities.slice(0, 5).forEach((opp: any, index: number) => {
+              const { customer, currentPolicy, recommendedPolicies, priority, priorityEmoji } = opp;
+              
+              reportText += `${priorityEmoji} **${priority} Priority**\n\n`;
+              reportText += `${index + 1}. **${customer.name}** (Age: ${customer.age || 'N/A'})\n`;
+              reportText += `   Current: ${currentPolicy}\n`;
+              reportText += `   Recommended: ${recommendedPolicies.map((p: any) => p.policyName).join(' + ')}\n`;
+              reportText += `   Priority: ${priority} - ${customer.policies.length === 1 ? 'Single policy holder - excellent cross-sell opportunity' : 'Active customer'}\n`;
+              reportText += `   Contact: ${customer.email} | ${customer.phone}\n\n`;
+            });
+            
+            reportText += `**Summary:**\n`;
+            reportText += `• Total single-policy customers: ${totalSinglePolicyCustomers}\n`;
+            reportText += `• High-value opportunities: ${highPriorityCount}\n`;
+            reportText += `• Potential additional premium: ₹${(totalPotentialPremium / 1000).toFixed(0)}k/year\n`;
+            reportText += `• Recommended action: Personalized outreach within 7 days\n\n`;
+            reportText += `**Next Steps:**\n`;
+            reportText += `1. Generate personalized messages for each customer\n`;
+            reportText += `2. Schedule follow-up calls\n`;
+            reportText += `3. Prepare policy comparison documents\n\n`;
+            reportText += `Would you like me to draft outreach messages for any of these customers?`;
+            
+            response = reportText;
+          } else {
+            throw new Error('Failed to fetch report');
+          }
+        } catch (reportError) {
+          console.error('Report fetch error:', reportError);
+          response = `📊 **Cross-Sell Opportunities Report**\n\nUnable to fetch live data. Please try again or check the database connection.`;
+        }
       } else if (lower.includes('lead')) {
-        response = `Here are your top 5 leads today:
-
-🔥 **Hot Leads**
-1. Rajesh Kumar - Term Life (₹1Cr) - Sentiment: Very Positive
-   Last contact: Yesterday. Ready to proceed with application.
-   
-2. Priya Sharma - ULIP - Sentiment: Positive
-   Comparing plans. Schedule call for premium breakdown.
-
-⚡ **Warm Leads**
-3. Amit Patel - Child Plan - Sentiment: Neutral
-   Needs education planning details. Best time: 6-8 PM.
-
-Would you like me to draft a follow-up message for any of these leads?`;
+        // Fetch real leads from API
+        try {
+          const leadsResponse = await fetch('/api/leads');
+          const leadsResult = await leadsResponse.json();
+          
+          if (leadsResult.success && leadsResult.data) {
+            const leads = leadsResult.data.slice(0, 5);
+            let leadsText = `Here are your top ${leads.length} leads today:\n\n`;
+            
+            const hotLeads = leads.filter((l: any) => l.status === 'hot');
+            const warmLeads = leads.filter((l: any) => l.status === 'warm');
+            
+            if (hotLeads.length > 0) {
+              leadsText += `🔥 **Hot Leads**\n`;
+              hotLeads.forEach((lead: any, index: number) => {
+                leadsText += `${index + 1}. ${lead.name} - ${lead.policyInterest} - Sentiment: ${Math.round(lead.sentiment * 100)}%\n`;
+                leadsText += `   ${lead.notes}\n\n`;
+              });
+            }
+            
+            if (warmLeads.length > 0) {
+              leadsText += `⚡ **Warm Leads**\n`;
+              warmLeads.forEach((lead: any, index: number) => {
+                leadsText += `${hotLeads.length + index + 1}. ${lead.name} - ${lead.policyInterest} - Sentiment: ${Math.round(lead.sentiment * 100)}%\n`;
+                leadsText += `   ${lead.notes}\n\n`;
+              });
+            }
+            
+            leadsText += `Would you like me to draft a follow-up message for any of these leads?`;
+            response = leadsText;
+          } else {
+            throw new Error('Failed to fetch leads');
+          }
+        } catch (leadsError) {
+          console.error('Leads fetch error:', leadsError);
+          response = `Unable to fetch leads. Please try again or check the database connection.`;
+        }
       } else if (lower.includes('renewal')) {
         response = `📋 **Upcoming Renewals This Week**
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, Bell, CheckCircle, AlertCircle, Phone, Mail, FileText, TrendingUp, Sparkles, ChevronDown, ChevronRight, MoreVertical, MessageSquare, Send, Zap } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -38,8 +38,28 @@ export default function NotificationsPage() {
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [draftingMessage, setDraftingMessage] = useState<string | null>(null);
   const [generatedMessage, setGeneratedMessage] = useState<{ whatsapp: string; email: string } | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const notifications: Notification[] = [
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications');
+      const result = await response.json();
+      if (result.success) {
+        setNotifications(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const oldNotifications: Notification[] = [
     {
       id: '1',
       category: 'renewals',
@@ -112,7 +132,16 @@ export default function NotificationsPage() {
     },
   ];
 
-  const timelineEvents: TimelineEvent[] = [
+  // Generate timeline from notifications
+  const timelineEvents: TimelineEvent[] = notifications.slice(0, 4).map((notif, index) => ({
+    time: `${9 + index * 2}:${index % 2 === 0 ? '00' : '30'}`,
+    title: notif.title,
+    customer: notif.customer.split(' ').map(n => n[0]).join('. ') + '.',
+    type: ['call', 'email', 'review', 'meeting'][index % 4] as 'call' | 'email' | 'review' | 'meeting',
+    status: 'upcoming' as const,
+  }));
+
+  const oldTimelineEvents: TimelineEvent[] = [
     { time: '09:00', title: 'Renewal Call', customer: 'R. Kumar', type: 'call', status: 'upcoming' },
     { time: '11:30', title: 'Follow-up', customer: 'P. Sharma', type: 'email', status: 'upcoming' },
     { time: '14:00', title: 'KYC Review', customer: 'A. Patel', type: 'review', status: 'upcoming' },
@@ -217,6 +246,17 @@ export default function NotificationsPage() {
     console.log('AI Suggestion clicked:', action);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading notifications...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 md:space-y-6 animate-fadeIn">
       {/* Header */}
@@ -296,44 +336,46 @@ export default function NotificationsPage() {
       />
 
       {/* Smart AI Insight Card */}
-      <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-purple-200">
-        <div className="flex items-start gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex-shrink-0">
-            <Sparkles className="text-white" size={20} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm md:text-base font-semibold text-gray-900 mb-2">
-              🎯 AI Priority Insight
-            </h3>
-            <p className="text-xs md:text-sm text-gray-700 mb-3">
-              Focus on <strong>Rajesh Kumar's renewal</strong> first. He has a 95% retention probability and his policy expires in 15 days. Best contact time: 6-8 PM today.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button 
-                size="sm" 
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                onClick={() => handleGenerateMessage(notifications[0])}
-                disabled={draftingMessage === notifications[0].id}
-              >
-                {draftingMessage === notifications[0].id ? (
-                  <>
-                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Drafting...
-                  </>
-                ) : (
-                  <>
-                    <Zap size={14} className="mr-1" />
-                    Auto-Draft Message
-                  </>
-                )}
-              </Button>
-              <Button size="sm" variant="outline">
-                Schedule for 6 PM
-              </Button>
+      {notifications.length > 0 && notifications[0] && (
+        <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-purple-200">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex-shrink-0">
+              <Sparkles className="text-white" size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm md:text-base font-semibold text-gray-900 mb-2">
+                🎯 AI Priority Insight
+              </h3>
+              <p className="text-xs md:text-sm text-gray-700 mb-3">
+                Focus on <strong>{notifications[0].customer}'s {notifications[0].category}</strong> first. {notifications[0].aiInsight} Best contact time: {notifications[0].bestContactTime}.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  onClick={() => handleGenerateMessage(notifications[0])}
+                  disabled={draftingMessage === notifications[0].id}
+                >
+                  {draftingMessage === notifications[0].id ? (
+                    <>
+                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Drafting...
+                    </>
+                  ) : (
+                    <>
+                      <Zap size={14} className="mr-1" />
+                      Auto-Draft Message
+                    </>
+                  )}
+                </Button>
+                <Button size="sm" variant="outline">
+                  Schedule for {notifications[0].bestContactTime?.split(' - ')[0]}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Generated Message Preview */}
       {generatedMessage && (

@@ -1,6 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { searchKnowledgeBase, getPolicyDetails, getCustomerDetails } from './rag';
-import { generateCrossSellReport, getHighValueCustomersForCrossSell, getAllPolicies } from './database-queries';
+import { 
+  generateCrossSellReport, 
+  getAllPolicies, 
+  searchPersonByName,
+  getAllLeads,
+  getAllCustomers 
+} from './database-queries';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -11,12 +17,38 @@ export interface AgentResponse {
   voice_text: string;
 }
 
+// Extract person name from query
+function extractPersonName(query: string): string | null {
+  // Common patterns for asking about a person
+  const patterns = [
+    /(?:about|for|regarding|find|search|show|tell me about|information (?:about|on|for))\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i,
+    /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)(?:\s|$)/,
+    /'([^']+)'/,
+    /"([^"]+)"/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = query.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
+}
+
 // Analyze user intent
 function analyzeIntent(query: string): {
-  type: 'policy_info' | 'premium_calc' | 'claim_process' | 'customer_query' | 'report' | 'cross_sell' | 'general';
+  type: 'policy_info' | 'premium_calc' | 'claim_process' | 'customer_query' | 'person_search' | 'report' | 'cross_sell' | 'general';
   entities: Record<string, any>;
 } {
   const lowerQuery = query.toLowerCase();
+  
+  // Check if asking about a specific person
+  const personName = extractPersonName(query);
+  if (personName) {
+    return { type: 'person_search', entities: { name: personName } };
+  }
   
   if (lowerQuery.includes('report') || lowerQuery.includes('list') || lowerQuery.includes('show me')) {
     return { type: 'report', entities: {} };
@@ -38,7 +70,7 @@ function analyzeIntent(query: string): {
     return { type: 'policy_info', entities: {} };
   }
   
-  if (lowerQuery.includes('customer') || lowerQuery.includes('client')) {
+  if (lowerQuery.includes('customer') || lowerQuery.includes('client') || lowerQuery.includes('lead')) {
     return { type: 'customer_query', entities: {} };
   }
   
@@ -67,6 +99,53 @@ export async function processAgentQuery(
     // Step 3: Get additional data if needed
     let additionalContext = '';
     
+    // Handle person search queries
+    if (intent.type === 'person_search' && intent.entities.name) {
+      try {
+        const searchResults = await searchPersonByName(intent.entities.name);
+        
+        if (searchResults.total === 0) {
+          additionalContext = `\n\nSearch Results: No records found for "${intent.entities.name}" in leads or customers database.`;
+        } else {
+          additionalContext = `\n\nSearch Results for "${intent.entities.name}":`;
+          
+          if (searchResults.leads.length > 0) {
+            additionalContext += `\n\nLEADS (${searchResults.leads.length} found):`;
+            searchResults.leads.forEach((lead: any) => {
+              additionalContext += `\n- ${lead.name}
+  Status: ${lead.status}
+  Email: ${lead.email || 'N/A'}
+  Phone: ${lead.phone || 'N/A'}
+  Age: ${lead.age || 'N/A'}
+  Policy Interest: ${lead.policy_interest}
+  Sentiment: ${(Number(lead.sentiment) * 100).toFixed(0)}%
+  Conversion Probability: ${(Number(lead.conversion_probability) * 100).toFixed(0)}%
+  Last Contact: ${new Date(lead.last_contact).toLocaleDateString()}
+  Notes: ${lead.notes || 'N/A'}
+  Location: ${lead.location || 'N/A'}
+  Source: ${lead.source || 'N/A'}
+  Best Contact Time: ${lead.best_contact_time || 'N/A'}`;
+            });
+          }
+          
+          if (searchResults.customers.length > 0) {
+            additionalContext += `\n\nCUSTOMERS (${searchResults.customers.length} found):`;
+            searchResults.customers.forEach((customer: any) => {
+              additionalContext += `\n- ${customer.name}
+  Email: ${customer.email || 'N/A'}
+  Phone: ${customer.phone || 'N/A'}
+  Age: ${customer.age || 'N/A'}
+  Current Policies: ${customer.policies?.join(', ') || 'None'}
+  Customer Since: ${new Date(customer.created_at).toLocaleDateString()}`;
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error searching person:', error);
+        additionalContext = `\n\nError searching database for "${intent.entities.name}".`;
+      }
+    }
+    
     // Handle report/cross-sell queries
     if (intent.type === 'report' || intent.type === 'cross_sell') {
       try {
@@ -87,6 +166,27 @@ ${i + 1}. ${r.name} (Age: ${r.age})
 `).join('\n')}`;
       } catch (error) {
         console.error('Error generating report:', error);
+      }
+    }
+    
+    // Handle customer/lead queries
+    if (intent.type === 'customer_query') {
+      try {
+        const leads = await getAllLeads();
+        const customers = await getAllCustomers();
+        
+        additionalContext += `\n\nDatabase Summary:
+Total Leads: ${leads.length}
+Total Customers: ${customers.length}
+
+Recent Leads (Top 3):
+${leads.slice(0, 3).map((lead: any, i: number) => `
+${i + 1}. ${lead.name} - ${lead.status} (${(Number(lead.conversion_probability) * 100).toFixed(0)}% conversion)
+   Interest: ${lead.policy_interest}
+   Contact: ${lead.phone || lead.email}
+`).join('\n')}`;
+      } catch (error) {
+        console.error('Error fetching customer data:', error);
       }
     }
     

@@ -12,12 +12,19 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
+  
   return new Intl.DateTimeFormat('en-IN', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  }).format(date);
+  }).format(dateObj);
 }
 
 export function getSentimentLabel(score: number): string {

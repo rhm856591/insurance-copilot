@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Phone, Mail, Calendar, TrendingUp, AlertCircle } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -29,63 +29,64 @@ interface Customer {
   tags: string[];
 }
 
-const mockCustomers: Customer[] = [
-  {
-    id: '1',
-    name: 'Rajesh Kumar',
-    phone: '+91 98765 43210',
-    email: 'rajesh.kumar@email.com',
-    policies: [
-      { number: 'LIC8921', type: 'Term Life', sumAssured: 10000000, premium: 45000, tenure: 30, payingTerm: 20 },
-    ],
-    renewalDate: new Date('2024-11-20'),
-    sentiment: 0.85,
-    followUpStatus: 'scheduled',
-    nextEvent: 'Premium payment reminder',
-    daysToRenewal: 5,
-    tags: ['High Value', 'Loyal Customer'],
-  },
-  {
-    id: '2',
-    name: 'Priya Sharma',
-    phone: '+91 98765 43211',
-    email: 'priya.sharma@email.com',
-    policies: [
-      { number: 'LIC7634', type: 'ULIP', sumAssured: 5000000, premium: 32000, tenure: 15, payingTerm: 10 },
-      { number: 'LIC7635', type: 'Child Plan', sumAssured: 2000000, premium: 18000, tenure: 20, payingTerm: 15 },
-    ],
-    renewalDate: new Date('2024-12-05'),
-    sentiment: 0.65,
-    followUpStatus: 'pending',
-    nextEvent: 'Policy review call',
-    daysToRenewal: 20,
-    tags: ['Multiple Policies'],
-  },
-  {
-    id: '3',
-    name: 'Sunita Desai',
-    phone: '+91 98765 43213',
-    email: 'sunita.desai@email.com',
-    policies: [
-      { number: 'LIC6543', type: 'Endowment', sumAssured: 3000000, premium: 28000, tenure: 25, payingTerm: 20 },
-    ],
-    renewalDate: new Date('2024-11-18'),
-    sentiment: 0.35,
-    followUpStatus: 'pending',
-    nextEvent: 'Urgent renewal follow-up',
-    daysToRenewal: 3,
-    tags: ['At Risk', 'Renewal Due'],
-  },
-];
-
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [sortBy, setSortBy] = useState<'renewal' | 'sentiment' | 'value'>('renewal');
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [messageRecipient, setMessageRecipient] = useState<Customer | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredCustomers = mockCustomers
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch('/api/customers');
+      const result = await response.json();
+      if (result.success) {
+        // Transform database customers to UI format
+        const transformedCustomers = result.data.map((customer: any, index: number) => {
+          const daysToRenewal = 5 + (index * 7);
+          const sentiment = 0.4 + Math.random() * 0.5;
+          
+          return {
+            id: customer.id,
+            name: customer.name,
+            phone: customer.phone || '+91 98765 43210',
+            email: customer.email || 'customer@email.com',
+            policies: customer.policies.map((policyName: string, pIndex: number) => ({
+              number: `LIC${8000 + index * 100 + pIndex}`,
+              type: policyName,
+              sumAssured: 1000000 * (index + 1),
+              premium: 15000 + (index * 5000),
+              tenure: 20 + (pIndex * 5),
+              payingTerm: 15 + (pIndex * 3),
+            })),
+            renewalDate: new Date(Date.now() + daysToRenewal * 24 * 60 * 60 * 1000),
+            sentiment,
+            followUpStatus: daysToRenewal <= 7 ? 'pending' : 'scheduled',
+            nextEvent: daysToRenewal <= 7 ? 'Urgent renewal follow-up' : 'Policy review call',
+            daysToRenewal,
+            tags: [
+              customer.policies.length > 1 ? 'Multiple Policies' : 'Single Policy',
+              sentiment > 0.7 ? 'Loyal Customer' : sentiment < 0.5 ? 'At Risk' : 'Active',
+              daysToRenewal <= 7 ? 'Renewal Due' : '',
+            ].filter(Boolean),
+          };
+        });
+        setCustomers(transformedCustomers);
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredCustomers = customers
     .filter((customer) => {
       const query = searchQuery.toLowerCase();
       return (
@@ -113,6 +114,17 @@ export default function CustomersPage() {
         customer={selectedCustomer}
         onBack={() => setSelectedCustomer(null)}
       />
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading customers...</p>
+        </div>
+      </div>
     );
   }
 
@@ -151,7 +163,7 @@ export default function CustomersPage() {
       </Card>
 
       {/* Customer List */}
-      <div className="grid grid-cols-1 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
         {filteredCustomers.map((customer, i) => (
           <Card key={customer.id} className="hover:shadow-md transition-shadow active:scale-[0.98]">
             <div className="flex items-start justify-between">

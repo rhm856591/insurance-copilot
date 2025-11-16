@@ -37,6 +37,28 @@ model Customer {
   @@map("customers")
 }
 
+model Lead {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                   String
+  email                  String?
+  phone                  String?
+  age                    Int?
+  status                 String   // 'hot', 'warm', 'cold'
+  sentiment              Decimal  @db.Decimal(3, 2)
+  lastContact            DateTime @map("last_contact")
+  policyInterest         String   @map("policy_interest")
+  notes                  String?
+  location               String?
+  source                 String?  // 'Website', 'Referral', 'Social Media', 'Cold Call'
+  conversionProbability  Decimal  @map("conversion_probability") @db.Decimal(3, 2)
+  priorityReason         String?  @map("priority_reason")
+  bestContactTime        String?  @map("best_contact_time")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  @@map("leads")
+}
+
 model PremiumTable {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   policyType      String   @map("policy_type")

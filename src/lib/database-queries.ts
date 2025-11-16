@@ -151,3 +151,84 @@ export async function getCustomersNeedingPolicy(policyType: string) {
     return [];
   }
 }
+
+// Search for a lead by name (fuzzy search)
+export async function searchLeadByName(name: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('leads')
+      .select('*')
+      .ilike('name', `%${name}%`);
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error searching lead by name:', error);
+    return [];
+  }
+}
+
+// Search for a customer by name (fuzzy search)
+export async function searchCustomerByName(name: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('customers')
+      .select('*')
+      .ilike('name', `%${name}%`);
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error searching customer by name:', error);
+    return [];
+  }
+}
+
+// Get all leads
+export async function getAllLeads() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('leads')
+      .select('*')
+      .order('conversion_probability', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    return [];
+  }
+}
+
+// Get all customers
+export async function getAllCustomers() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('customers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    return [];
+  }
+}
+
+// Search for lead or customer by name (checks both tables)
+export async function searchPersonByName(name: string) {
+  try {
+    const leads = await searchLeadByName(name);
+    const customers = await searchCustomerByName(name);
+
+    return {
+      leads,
+      customers,
+      total: leads.length + customers.length,
+    };
+  } catch (error) {
+    console.error('Error searching person by name:', error);
+    return { leads: [], customers: [], total: 0 };
+  }
+}
